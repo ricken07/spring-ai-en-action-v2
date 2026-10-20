@@ -2,6 +2,7 @@ package com.rickenbazolo.refund.ai.chat;
 
 import com.rickenbazolo.refund.domain.RefundIntent;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -9,9 +10,13 @@ import org.springframework.stereotype.Component;
 public class SpringAiRefundChatGateway implements RefundChatGateway {
 
   private final ChatClient chatClient;
+  private final ChatClient conversationClient;
 
-  public SpringAiRefundChatGateway(@Qualifier("refundChatClient") ChatClient chatClient) {
+  public SpringAiRefundChatGateway(
+      @Qualifier("refundChatClient") ChatClient chatClient,
+      @Qualifier("refundConversationClient") ChatClient conversationClient) {
     this.chatClient = chatClient;
+    this.conversationClient = conversationClient;
   }
 
   @Override
@@ -39,5 +44,15 @@ public class SpringAiRefundChatGateway implements RefundChatGateway {
         .user(message)
         .call()
         .entity(RefundIntent.class);
+  }
+
+  @Override
+  public String chatWithMemory(String conversationKey, String message) {
+    return conversationClient
+        .prompt()
+        .user(message)
+        .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, conversationKey))
+        .call()
+        .content();
   }
 }

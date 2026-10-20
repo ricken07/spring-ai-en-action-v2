@@ -53,5 +53,10 @@ class RefundAiServiceTest {
     public RefundIntent extractIntent(String message) {
       return intent;
     }
+
+    @Override
+    public String chatWithMemory(String conversationKey, String message) {
+      return "Simulated response";
+    }
   }
 }

@@ -7,4 +7,6 @@ public interface RefundChatGateway {
   String chat(String message);
 
   RefundIntent extractIntent(String message);
+
+  String chatWithMemory(String conversationKey, String message);
 }

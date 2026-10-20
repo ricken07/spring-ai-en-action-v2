@@ -1,2 +1,12 @@
 lab:
   demo-identities-enabled: true
+spring:
+  ai:
+    model:
+      chat: ollama
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: llama3
+        options:
+          temperature: 0.1

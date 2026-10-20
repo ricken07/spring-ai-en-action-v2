@@ -5,6 +5,6 @@ import java.util.List;
 public record RefundIntent(
     String orderId, String reason, String requestedAction, List<String> missingFields) {
   public RefundIntent {
-    missingFields = List.copyOf(missingFields);
+    missingFields = missingFields == null ? List.of() : List.copyOf(missingFields);
   }
 }

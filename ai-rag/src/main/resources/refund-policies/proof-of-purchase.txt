@@ -1,0 +1,8 @@
+Politique REF-PROOF-001 — Justificatifs
+Version : 1.0
+
+La facture constitue le justificatif standard.
+
+Si la facture n'est plus disponible, une confirmation de commande associée au compte client peut être utilisée comme justificatif alternatif, après vérification.
+
+Le numéro de commande seul ne garantit pas l'approbation d'un remboursement.

@@ -1,0 +1,8 @@
+Politique REF-DEFECT-001 — Produit défectueux
+Version : 1.0
+
+Une demande de remboursement pour un produit défectueux peut être étudiée après vérification de la commande et du défaut signalé.
+
+Le support doit recueillir la référence de commande et une description du problème.
+
+La demande ne constitue pas une approbation. L'éligibilité est déterminée par le service métier de remboursement.

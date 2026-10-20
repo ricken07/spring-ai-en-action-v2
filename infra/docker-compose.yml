@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: refund-pgvector
+    environment:
+      POSTGRES_DB: refund_lab
+      POSTGRES_USER: refund
+      POSTGRES_PASSWORD: refund
+    ports:
+      - "5438:5432"
+    volumes:
+      - refund_pg_data:/var/lib/postgresql/data
+
+volumes:
+  refund_pg_data:

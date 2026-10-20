@@ -10,6 +10,7 @@
     <module>refund-domain</module>
     <module>refund-application</module>
     <module>ai-chat</module>
+    <module>ai-rag</module>
     <module>refund-api</module>
   </modules>
   <properties>

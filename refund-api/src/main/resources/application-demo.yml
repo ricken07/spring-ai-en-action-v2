@@ -1,12 +1,26 @@
 lab:
   demo-identities-enabled: true
 spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5438/refund_lab
+    username: refund
+    password: refund
   ai:
     model:
       chat: ollama
+      embedding: ollama
     ollama:
       base-url: http://localhost:11434
       chat:
         model: llama3
         options:
           temperature: 0.1
+      embedding:
+        model: nomic-embed-text
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 768
+        remove-existing-vector-store-table: false

@@ -1,0 +1,8 @@
+Politique REF-WINDOW-001 — Délai
+Version : 1.0
+
+Les commandes de type LAPTOP peuvent être étudiées dans un délai standard de 30 jours après la date d'achat.
+
+Les commandes de type ACCESSORY ont un délai standard de 14 jours après la date d'achat. Le service métier applique le délai associé au type de produit et vérifie les justificatifs requis.
+
+Aucune réponse de l'assistant ne peut prolonger le délai ou accorder une exception métier.

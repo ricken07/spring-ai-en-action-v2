@@ -29,12 +29,21 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.rickenbazolo.springaiaction</groupId>
+      <artifactId>ai-mcp-host</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-webmvc</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.ai</groupId>
       <artifactId>spring-ai-starter-model-ollama</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-starter-mcp-client</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.ai</groupId>

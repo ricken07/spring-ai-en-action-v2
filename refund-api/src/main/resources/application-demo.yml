@@ -6,8 +6,28 @@ spring:
     username: refund
     password: refund
   ai:
+    chat:
+      client:
+        tool-calling:
+          enabled: true
+    mcp:
+      client:
+        enabled: true
+        name: refund-management-host
+        type: SYNC
+        request-timeout: 10s
+        toolcallback:
+          enabled: true
+        streamable-http:
+          connections:
+            refund-policies:
+              url: http://127.0.0.1:8081
+              endpoint: /mcp
     tools:
       throw-exception-on-error: true
+      resolution:
+        fallback:
+          enabled: false
       limits:
         max-calls-per-tool-default: 3
         max-total-tool-calls: 6

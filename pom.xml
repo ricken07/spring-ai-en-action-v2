@@ -12,6 +12,8 @@
     <module>ai-chat</module>
     <module>ai-rag</module>
     <module>ai-tools</module>
+    <module>ai-mcp-host</module>
+    <module>refund-mcp-server</module>
     <module>refund-api</module>
   </modules>
   <properties>

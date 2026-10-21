@@ -1,0 +1,21 @@
+server:
+  port: 8081
+  address: 127.0.0.1
+
+spring:
+  application:
+    name: refund-mcp-server
+  ai:
+    mcp:
+      server:
+        name: refund-policy-server
+        version: 1.0.0
+        type: SYNC
+        protocol: STREAMABLE
+        capabilities:
+          tool: true
+          resource: false
+          prompt: false
+          completion: false
+        streamable-http:
+          mcp-endpoint: /mcp

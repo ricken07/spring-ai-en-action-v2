@@ -14,6 +14,7 @@
     <module>ai-tools</module>
     <module>ai-mcp-host</module>
     <module>refund-mcp-server</module>
+    <module>ai-workflows</module>
     <module>refund-api</module>
   </modules>
   <properties>

@@ -1,5 +1,18 @@
-lab:
-  demo-identities-enabled: true
+refund:
+  ai:
+    execution:
+      timeout: 20s
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: never
+  tracing:
+    sampling:
+      probability: 1.0
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5438/refund_lab
@@ -10,6 +23,24 @@ spring:
       client:
         tool-calling:
           enabled: true
+        observations:
+          log-prompt: false
+          log-completion: false
+      observations:
+        log-prompt: false
+        log-completion: false
+        include-error-logging: false
+    tools:
+      observations:
+        include-content: false
+      throw-exception-on-error: true
+      resolution:
+        fallback:
+          enabled: false
+      limits:
+        max-calls-per-tool-default: 3
+        max-total-tool-calls: 6
+        on-limit-exceeded: THROW
     mcp:
       client:
         enabled: true
@@ -23,15 +54,6 @@ spring:
             refund-policies:
               url: http://127.0.0.1:8081
               endpoint: /mcp
-    tools:
-      throw-exception-on-error: true
-      resolution:
-        fallback:
-          enabled: false
-      limits:
-        max-calls-per-tool-default: 3
-        max-total-tool-calls: 6
-        on-limit-exceeded: THROW
     model:
       chat: ollama
       embedding: ollama
@@ -44,6 +66,8 @@ spring:
       embedding:
         model: nomic-embed-text
     vectorstore:
+      observations:
+        log-query-response: false
       pgvector:
         initialize-schema: true
         index-type: HNSW

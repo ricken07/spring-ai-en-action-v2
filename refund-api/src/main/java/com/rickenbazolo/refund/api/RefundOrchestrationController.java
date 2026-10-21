@@ -1,6 +1,8 @@
 package com.rickenbazolo.refund.api;
 
 import com.rickenbazolo.refund.ai.workflows.RefundOrchestrationFacade;
+import com.rickenbazolo.refund.api.observability.AiExecutionMetrics;
+import com.rickenbazolo.refund.api.security.CurrentUser;
 import com.rickenbazolo.refund.application.ForbiddenOrderAccessException;
 import java.util.NoSuchElementException;
 import org.springframework.ai.tool.execution.ToolExecutionException;
@@ -9,34 +11,43 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/ai/orchestration")
 public class RefundOrchestrationController {
 
   private final RefundOrchestrationFacade facade;
-  private final DemoActorResolver actorResolver;
+  private final CurrentUser currentUser;
+  private final AiExecutionMetrics metrics;
 
   public RefundOrchestrationController(
-      RefundOrchestrationFacade facade, DemoActorResolver actorResolver) {
+      RefundOrchestrationFacade facade, CurrentUser currentUser, AiExecutionMetrics metrics) {
     this.facade = facade;
-    this.actorResolver = actorResolver;
+    this.currentUser = currentUser;
+    this.metrics = metrics;
   }
 
   @PostMapping("/execute")
-  public Object execute(
-      @RequestHeader("X-Demo-User") String userId, @RequestBody ExecuteRequest request) {
+  public Object execute(@RequestBody ExecuteRequest request) {
     if (request == null) {
       throw new IllegalArgumentException("Request body must not be null");
     }
-    var actor = actorResolver.fromDemoHeader(userId);
-    return facade.execute(
-        actor.subjectId(), request.mode(), request.message(), request.confirmed());
+    if (!"WORKFLOW".equals(request.mode()) && !"AGENT".equals(request.mode())) {
+      throw new IllegalArgumentException("Unsupported orchestration mode");
+    }
+    String userId = currentUser.id();
+    try {
+      return metrics.measure(
+          request.mode(),
+          () -> facade.execute(userId, request.mode(), request.message(), request.confirmed()));
+    } catch (RuntimeException exception) {
+      throw exception;
+    } catch (Exception exception) {
+      throw new IllegalStateException("AI orchestration failed", exception);
+    }
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
@@ -81,12 +92,6 @@ public class RefundOrchestrationController {
     }
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(new ErrorReply("Tool execution failed."));
-  }
-
-  @ExceptionHandler(ResponseStatusException.class)
-  public ResponseEntity<ErrorReply> identityFailure(ResponseStatusException exception) {
-    return ResponseEntity.status(exception.getStatusCode())
-        .body(new ErrorReply(exception.getReason()));
   }
 
   public record ExecuteRequest(String mode, String message, boolean confirmed) {}

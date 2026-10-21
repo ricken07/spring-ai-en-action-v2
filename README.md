@@ -1,35 +1,43 @@
-# Spring AI en Action — Refund Management P0-A
+# Spring AI en Action — Refund Management P0-I
 
-**Étape : fondations métier sans LLM, sans transaction financière.** Répertoire indépendant du dépôt historique.
+POC d'accompagnement du talk Spring AI en Action : domaine Refund Management, capacités Spring AI et protections transversales. Aucune opération ne déclenche un paiement.
 
 ## Versions cible
 - Java 21
-- Spring Boot 4.0.8 (POM fixé, build Maven non vérifié localement)
-- Spring AI 2.0.1 (BOM réservé au parent ; **aucun module AI activé en P0-A**)
+- Spring Boot 4.0.8
+- Spring AI 2.0.1
+- Java 21+
 
-## Vérifier le coeur sans Maven
+## Build et lancement local
 ```bash
-bash scripts/check-core.sh
-```
-
-## Vérifier l'application avec Maven 3.9+
-```bash
-mvn -U clean verify
+mvn clean verify
 mvn -pl refund-api -am spring-boot:run -Dspring-boot.run.profiles=demo
 ```
-Le lancement Maven et les requêtes HTTP ne sont **pas vérifiés** dans l'environnement de génération (Maven absent). Le profil `demo` active explicitement les identités fictives pour un usage strictement local.
+Le build et les tests unitaires/MVC sont vérifiés. Les scénarios nécessitant Ollama, PostgreSQL/pgvector et le serveur MCP restent à lancer avec ces services disponibles.
 
-## API de démonstration
+## Identités de démonstration
+
+Le profil `demo` active les comptes fictifs suivants, réservés à l'environnement local : `alice / alice-demo`, `bob / bob-demo` et `admin / admin-demo`. Ils utilisent HTTP Basic. Alice et Bob ont le rôle `USER`; admin possède aussi `ADMIN`.
+
+## Exemples HTTP
+
 ```bash
-curl -i -H 'X-Demo-Actor: alice' localhost:8080/api/orders/CMD-1042
-curl -i -H 'X-Demo-Actor: alice' localhost:8080/api/orders/CMD-2099 # 403 attendu
-curl -i -H 'X-Demo-Actor: alice' localhost:8080/api/orders/CMD-1050/eligibility
-curl -i -X POST -H 'X-Demo-Actor: alice' localhost:8080/api/orders/CMD-1042/refund-drafts
+curl -i -u alice:alice-demo localhost:8080/api/orders/CMD-1042
+curl -i -u alice:alice-demo localhost:8080/api/orders/CMD-2099 # 403 attendu
+curl -i -u alice:alice-demo localhost:8080/api/orders/CMD-1050/eligibility
+curl -i -X POST -u alice:alice-demo localhost:8080/api/orders/CMD-1042/refund-drafts
+curl -i -u admin:admin-demo localhost:8080/actuator/metrics
+curl -i -u alice:alice-demo -X POST localhost:8080/api/ai/rag/admin/ingest # 403 attendu
 ```
-Ou `bash scenarios/requests.sh`.
 
 ## Sécurité
-L'en-tête `X-Demo-Actor` est une **simulation d'identité**, pas une authentification. Il est désactivé par défaut. N'exposez **jamais** le profil demo en réseau public ni en production. P0 suivant : Spring Security, identité serveur établie et tests HTTP négatifs.
+Les contrôleurs obtiennent désormais l'identité depuis Spring Security ; `X-Demo-Actor` et `X-Demo-User` ne sont plus utilisés. Les comptes codés en mémoire ne sont activés qu'avec `demo`. N'exposez pas ce profil sur un réseau public. L'authentification de démonstration ne remplace pas une configuration d'identité pour un produit réel.
+
+`/api/**` exige une authentification, l'ingestion RAG et les endpoints Actuator hors santé exigent `ADMIN`, et `/actuator/health` est public. Les appels métier vérifient encore la propriété de la commande dans les services Java.
+
+Les appels consultatifs à `/api/ai/safe-chat` sont bornés par un timeout applicatif et retournent un statut explicite `AI_UNAVAILABLE` en cas de panne technique connue. Un timeout Java ne garantit pas l'arrêt d'une requête déjà reçue par le fournisseur. Les exceptions métier et de sécurité ne sont pas converties en succès de repli.
+
+Les métriques applicatives sont exposées via Actuator et Prometheus. Les observations Spring AI sont configurées sans contenu de prompt, de complétion ou de Tool. Le sampling configuré ne suffit pas à exporter des traces : aucun collecteur OpenTelemetry n'est branché dans cet incrément.
 
 ## Politique fictive de test
 - `LAPTOP`: fenêtre de 30 jours, justificatif requis.
@@ -37,8 +45,8 @@ L'en-tête `X-Demo-Actor` est une **simulation d'identité**, pas une authentifi
 - Règles datées au 2026-01-01, version 1.0.
 - `EligibilityService` applique une décision Java déterministe ; le futur LLM ne pourra ni déroger à cette règle ni déclencher une transaction.
 
-## Limites P0-A
-- Stockage mémoire (fixtures), PostgreSQL reporté à l'adaptateur suivant.
-- Pas d'interface UI, pas de ChatClient, pas de Tool, pas de MCP.
-- Tests du cœur exécutables au JDK seul, pas encore des tests JUnit Maven ni MockMvc.
-- Avant toute mise en scène, compiler l'ensemble et vérifier les HTTP dans l'environnement cible.
+## Limites du POC
+- Les comptes et mots de passe de démonstration ne conviennent pas à un environnement partagé.
+- La mémoire métier des commandes reste en fixtures ; le stockage vectoriel PostgreSQL est distinct.
+- Le timeout applicatif complète les timeouts réseau, mais ne les remplace pas.
+- Les scénarios nécessitant Ollama, pgvector et MCP doivent être vérifiés séparément avant leur démonstration.

@@ -1,8 +1,10 @@
 package com.rickenbazolo.refund.api;
 
+import com.rickenbazolo.refund.api.security.CurrentUser;
 import com.rickenbazolo.refund.application.*;
 import com.rickenbazolo.refund.domain.*;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -13,25 +15,23 @@ public class OrderController {
   private final OrderService orders;
   private final EligibilityService eligibility;
   private final RefundService refunds;
-  private final DemoActorResolver identities;
+  private final CurrentUser currentUser;
 
   public OrderController(
       OrderService orders,
       EligibilityService eligibility,
       RefundService refunds,
-      DemoActorResolver identities) {
+      CurrentUser currentUser) {
     this.orders = orders;
     this.eligibility = eligibility;
     this.refunds = refunds;
-    this.identities = identities;
+    this.currentUser = currentUser;
   }
 
   @GetMapping("/orders/{id}")
-  public Order get(
-      @PathVariable String id,
-      @RequestHeader(value = "X-Demo-Actor", required = false) String header) {
+  public Order get(@PathVariable String id) {
     try {
-      return orders.getAuthorized(id, identities.fromDemoHeader(header));
+      return orders.getAuthorized(id, actor());
     } catch (ForbiddenOrderAccessException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Order access denied");
     } catch (NoSuchElementException e) {
@@ -40,18 +40,14 @@ public class OrderController {
   }
 
   @GetMapping("/orders/{id}/eligibility")
-  public EligibilityDecision eligibility(
-      @PathVariable String id,
-      @RequestHeader(value = "X-Demo-Actor", required = false) String header) {
-    return eligibility.evaluate(get(id, header));
+  public EligibilityDecision eligibility(@PathVariable String id) {
+    return eligibility.evaluate(get(id));
   }
 
   @PostMapping("/orders/{id}/refund-drafts")
-  public RefundDraft draft(
-      @PathVariable String id,
-      @RequestHeader(value = "X-Demo-Actor", required = false) String header) {
+  public RefundDraft draft(@PathVariable String id) {
     try {
-      return refunds.prepareDraft(id, identities.fromDemoHeader(header));
+      return refunds.prepareDraft(id, actor());
     } catch (ForbiddenOrderAccessException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Order access denied");
     } catch (IllegalStateException e) {
@@ -59,5 +55,10 @@ public class OrderController {
     } catch (NoSuchElementException e) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found");
     }
+  }
+
+  private AuthenticatedActor actor() {
+    String userId = currentUser.id();
+    return new AuthenticatedActor(userId, Set.of(userId));
   }
 }

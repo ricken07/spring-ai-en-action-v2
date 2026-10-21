@@ -4,6 +4,7 @@ import com.rickenbazolo.refund.ai.tools.RefundDraftCommandService;
 import com.rickenbazolo.refund.ai.tools.RefundToolChatService;
 import com.rickenbazolo.refund.ai.tools.RefundToolChatService.ToolChatResult;
 import com.rickenbazolo.refund.ai.tools.RefundToolDtos.DraftView;
+import com.rickenbazolo.refund.api.security.CurrentUser;
 import com.rickenbazolo.refund.application.ForbiddenOrderAccessException;
 import java.util.NoSuchElementException;
 import org.springframework.ai.tool.execution.ToolExecutionException;
@@ -11,11 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/ai/tools")
@@ -23,29 +22,25 @@ public class RefundToolsController {
 
   private final RefundToolChatService chatService;
   private final RefundDraftCommandService draftService;
-  private final DemoActorResolver actorResolver;
+  private final CurrentUser currentUser;
 
   public RefundToolsController(
       RefundToolChatService chatService,
       RefundDraftCommandService draftService,
-      DemoActorResolver actorResolver) {
+      CurrentUser currentUser) {
     this.chatService = chatService;
     this.draftService = draftService;
-    this.actorResolver = actorResolver;
+    this.currentUser = currentUser;
   }
 
   @PostMapping("/ask")
-  public ToolChatResult ask(
-      @RequestHeader("X-Demo-User") String userId, @RequestBody ChatRequest request) {
-    var actor = actorResolver.fromDemoHeader(userId);
-    return chatService.ask(actor.subjectId(), request.message());
+  public ToolChatResult ask(@RequestBody ChatRequest request) {
+    return chatService.ask(currentUser.id(), request.message());
   }
 
   @PostMapping("/drafts")
-  public DraftView prepareDraft(
-      @RequestHeader("X-Demo-User") String userId, @RequestBody DraftRequest request) {
-    var actor = actorResolver.fromDemoHeader(userId);
-    return draftService.prepareDraft(actor.subjectId(), request.orderId(), request.confirmed());
+  public DraftView prepareDraft(@RequestBody DraftRequest request) {
+    return draftService.prepareDraft(currentUser.id(), request.orderId(), request.confirmed());
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
@@ -96,13 +91,6 @@ public class RefundToolsController {
     }
     return org.springframework.http.ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(new ErrorReply("Tool execution failed."));
-  }
-
-  @ExceptionHandler(ResponseStatusException.class)
-  public org.springframework.http.ResponseEntity<ErrorReply> identityFailure(
-      ResponseStatusException exception) {
-    return org.springframework.http.ResponseEntity.status(exception.getStatusCode())
-        .body(new ErrorReply(exception.getReason()));
   }
 
   public record ChatRequest(String message) {}

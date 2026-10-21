@@ -6,13 +6,19 @@ spring:
     username: refund
     password: refund
   ai:
+    tools:
+      throw-exception-on-error: true
+      limits:
+        max-calls-per-tool-default: 3
+        max-total-tool-calls: 6
+        on-limit-exceeded: THROW
     model:
       chat: ollama
       embedding: ollama
     ollama:
       base-url: http://localhost:11434
       chat:
-        model: llama3
+        model: qwen3:8b
         options:
           temperature: 0.1
       embedding:

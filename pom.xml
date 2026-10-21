@@ -11,6 +11,7 @@
     <module>refund-application</module>
     <module>ai-chat</module>
     <module>ai-rag</module>
+    <module>ai-tools</module>
     <module>refund-api</module>
   </modules>
   <properties>
@@ -47,6 +48,7 @@
           <version>3.14.1</version>
           <configuration>
             <release>21</release>
+            <parameters>true</parameters>
           </configuration>
         </plugin>
         <plugin>

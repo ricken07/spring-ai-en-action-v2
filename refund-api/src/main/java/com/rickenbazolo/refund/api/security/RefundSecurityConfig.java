@@ -31,6 +31,8 @@ public class RefundSecurityConfig {
                     .permitAll()
                     .requestMatchers("/actuator/**")
                     .hasRole("ADMIN")
+                    .requestMatchers("/", "/index.html", "/app.js", "/styles.css")
+                    .authenticated()
                     .requestMatchers("/api/**")
                     .authenticated()
                     .anyRequest()

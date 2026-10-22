@@ -15,11 +15,18 @@ public class AiExecutionMetrics {
   }
 
   public <T> T measure(String scenario, Callable<T> action) throws Exception {
-    if (!"CHAT".equals(scenario)
-        && !"RAG".equals(scenario)
-        && !"AGENT".equals(scenario)
-        && !"WORKFLOW".equals(scenario)
-        && !"MCP".equals(scenario)) {
+    if (!java.util.Set.of(
+            "CHAT",
+            "STRUCTURED",
+            "MEMORY",
+            "RAG",
+            "RAG_ADVANCED",
+            "TOOLS",
+            "MCP",
+            "WORKFLOW",
+            "AGENT",
+            "SAFE_CHAT")
+        .contains(scenario)) {
       throw new IllegalArgumentException("Unsupported AI scenario");
     }
     Timer.Sample sample = Timer.start(registry);

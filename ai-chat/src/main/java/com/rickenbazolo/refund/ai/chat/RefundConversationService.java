@@ -29,7 +29,14 @@ public class RefundConversationService {
     List<String> messageTypes =
         messages.stream().map(message -> message.getMessageType().name()).toList();
 
-    return new ConversationSnapshot(conversationId, messages.size(), messageTypes);
+    List<ConversationMessage> entries =
+        messages.stream()
+            .map(
+                message ->
+                    new ConversationMessage(message.getMessageType().name(), message.getText()))
+            .toList();
+
+    return new ConversationSnapshot(conversationId, messages.size(), messageTypes, entries);
   }
 
   public void clear(String userId, String conversationId) {

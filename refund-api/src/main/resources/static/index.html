@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#174d34">
+    <title>Gestion des remboursements — Laboratoire Spring AI</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script defer src="/app.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Gestion des remboursements, accueil">
+        <span class="brand-mark" aria-hidden="true">R</span>
+        <span class="brand-name">Gestion des remboursements</span>
+      </a>
+      <div class="header-context">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span>Laboratoire de conférence</span>
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <section class="page-heading" aria-labelledby="page-title">
+        <div>
+          <h1 id="page-title">Spring AI en action</h1>
+          <p>Intégration des capacités de LLM</p>
+        </div>
+      </section>
+
+      <div class="workspace">
+        <section class="panel scenario-panel" aria-labelledby="scenario-title">
+          <div class="panel-heading">
+            <div>
+              <h2 id="scenario-title">Préparer une exécution</h2>
+              <p>Les décisions métier restent dans les services Java.</p>
+            </div>
+          </div>
+
+          <form id="execution-form">
+            <label class="field-label" for="scenario">Scénario</label>
+            <select id="scenario" name="scenario" required disabled>
+              <option>Chargement des scénarios…</option>
+            </select>
+            <p id="scenario-description" class="field-hint" aria-live="polite"></p>
+
+            <div class="question-heading">
+              <label class="field-label question-label" for="question">Demande utilisateur</label>
+              <button id="new-conversation" class="secondary-button" type="button" hidden>Nouvelle conversation</button>
+            </div>
+            <textarea id="question" name="question" rows="5" required placeholder="Décrivez la demande à analyser…"></textarea>
+
+            <p id="conversation-field" class="field-hint" hidden>Les messages suivants poursuivent la même conversation.</p>
+
+            <label id="reranking-field" class="toggle-row" for="reranking" hidden>
+              <span class="toggle-copy">
+                <span class="field-label">Reclassement lexical</span>
+                <span class="field-hint">Réordonner les candidats avant génération.</span>
+              </span>
+              <input id="reranking" type="checkbox">
+              <span class="toggle-track" aria-hidden="true"></span>
+            </label>
+
+
+
+            <div class="form-footer">
+              <span class="privacy-note">Les événements n’enregistrent pas le texte du prompt.</span>
+              <button id="execute" type="submit" disabled>
+                <span class="button-label">Exécuter le scénario</span>
+                <span class="button-arrow" aria-hidden="true">→</span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel result-panel" aria-labelledby="result-title">
+          <div class="panel-heading result-heading">
+            <div>
+              <h2 id="result-title">Résultat</h2>
+              <p id="result-subtitle">Aucune exécution pour le moment.</p>
+            </div>
+            <span id="result-status" class="state-badge state-idle">En attente</span>
+          </div>
+
+          <div id="result-content" class="result-content" aria-live="polite" aria-busy="false">
+            <div class="empty-state">
+              <span class="empty-mark" aria-hidden="true">↳</span>
+              <h3>Le prochain résultat apparaîtra ici</h3>
+              <p>Les réponses, décisions métier et documents retrouvés restent séparés pour être faciles à lire.</p>
+            </div>
+          </div>
+
+          <details class="technical-panel" open>
+            <summary>
+              <span>Panneau technique</span>
+              <span id="evidence-count" class="evidence-count">Aucune preuve</span>
+            </summary>
+            <div id="technical-content" class="technical-content">
+              <p class="technical-empty">Aucune preuve d’exécution disponible.</p>
+            </div>
+          </details>
+        </section>
+      </div>
+      <footer class="page-footer">
+        <span>Environnement local de démonstration</span>
+        <span>Les politiques affichées sont fictives.</span>
+      </footer>
+    </main>
+  </body>
+</html>

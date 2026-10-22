@@ -40,10 +40,10 @@ public class RefundBusinessAdapter implements RefundBusinessOperations {
     var decision = eligibility.evaluate(order);
     String reason =
         decision.reasons().isEmpty()
-            ? "Eligible under policy " + decision.policyVersion()
+            ? "Éligible selon la politique " + decision.policyVersion()
             : String.join(", ", decision.reasons());
     if (decision.requiresVerification()) {
-      reason += "; verification is required";
+      reason += "; vérification requise";
     }
     return new EligibilityView(orderId, decision.eligible(), reason);
   }

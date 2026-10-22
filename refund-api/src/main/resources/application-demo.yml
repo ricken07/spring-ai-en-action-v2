@@ -1,7 +1,7 @@
 refund:
   ai:
     execution:
-      timeout: 20s
+      timeout: 120s
 management:
   endpoints:
     web:
